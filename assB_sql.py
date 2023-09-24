@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 # Define paths to CSV files and the SQLite database file
-csv_files = ['calendar_dec18.csv', 'reviews_dec18.csv', 'listings_dec18.csv']
+csv_files = ['calendar_dec18.csv','reviews_dec18.csv', 'listings_dec18.csv']
 db_file = 'airbnb.db'
 
 # Create a SQLite database connection
