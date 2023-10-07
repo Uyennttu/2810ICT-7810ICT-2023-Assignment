@@ -1,62 +1,67 @@
 import unittest
-from unittest.mock import Mock, call
-import tkinter as tk
+from unittest.mock import patch, Mock
 import pandas as pd
-import demo3
-
-# Example DataFrame for Testing
-test_data = {
-    'id': [1, 2, 3],
-    'name': ['Test1', 'Test2', 'Test3'],
-    'listing_url': ['url1', 'url2', 'url3'],
-    'last_scraped': ['2019-01-01', '2019-01-02', '2019-01-03'],
-    'description': ['Keyword1 Description', 'Keyword2 Description', 'Other Description']
-}
-dataset = pd.DataFrame(test_data)
+from demo3 import search_keyword
 
 
 class TestSearchKeyword(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up class-level resources (runs once per class)."""
+        cls.mock_listings_data = pd.DataFrame({
+            'id': [1],
+            'description': ['test'],
+            'name': ['Test Name'],
+            'listing_url': ['http://test.url']
+        })
+        cls.mock_calendar_data = pd.DataFrame({
+            'listing_id': [1],
+            'date': [pd.Timestamp('2023-01-01')],
+        })
+
     def setUp(self):
+        """Set up common test resources (runs before each test method)."""
         self.output_text = Mock()
 
-    def check_output_text(self, expected_text):
-        """Helper function to check the output_text."""
-        try:
-            self.output_text.insert.assert_called_once_with(tk.END, expected_text)
-        except AssertionError:
-            actual_calls = self.output_text.insert.call_args_list
-            raise AssertionError(f"Expected call: [call({tk.END}, {expected_text})], Actual calls: {actual_calls}")
+    def run_search_keyword(self, start_date, end_date, keyword):
+        """Helper method to run search_keyword and handle common mock setups."""
+        with patch('demo3.calendar_dataset', autospec=True) as mock_calendar, \
+                patch('demo3.listings_dataset', autospec=True) as mock_listings:
+            mock_listings.return_value = self.mock_listings_data
+            mock_calendar.return_value = self.mock_calendar_data
 
-    def test_missing_dates(self):
-        demo3.search_keyword(None, '2018-01-01', ['keyword'], self.output_text)
-        self.check_output_text("Please enter valid start and end dates.\n")
+            return search_keyword(start_date, end_date, keyword, self.output_text)
 
-    def test_start_date_greater_than_end_date(self):
-        demo3.search_keyword('2019-01-02', '2018-01-01', ['keyword'], self.output_text)
-        self.check_output_text("Start date cannot be greater than end date.\n")
+    def test_input_validations(self):
+        """Test input validation scenarios."""
+        test_cases = [
+            (None, None, ['key'], ValueError, "Missing dates"),
+            ('2023-12-31', '2023-01-01', ['key'], ValueError, "Start date after end date"),
+            ('2023-01-01', '2023-12-31', [], ValueError, "Empty keyword"),
+        ]
 
-    def test_empty_keyword(self):
-        demo3.search_keyword('2018-01-01', '2019-01-02', [], self.output_text)
-        self.check_output_text("Please enter at least one keyword.\n")
+        for start_date, end_date, keyword, expected_exception, msg in test_cases:
+            with self.subTest(msg=msg), self.assertRaises(expected_exception):
+                self.run_search_keyword(start_date, end_date, keyword)
 
-    def test_no_matching_listings(self):
-        demo3.search_keyword('2018-01-01', '2019-01-02', ['nonexistent'], self.output_text)
-        self.check_output_text("No matching listings found.\n")
+    def test_no_matching_list(self):
+        """Test scenario where no listings match the keyword."""
+        self.run_search_keyword('2023-01-01', '2023-12-31', ['non-existent-key'])
 
-    def test_matching_listings(self):
-        demo3.dataset = dataset
-        demo3.search_keyword('2019-01-01', '2019-01-02', ['Keyword1'], self.output_text)
+        self.output_text.delete.assert_called_once_with(1.0, "end")
+        self.output_text.insert.assert_called_once_with("end", "No matching listings found.\n")
 
-        expected_text = (
-            "ID: 1\n"
-            "Name: Test1\n"
-            "URL: url1\n"
-            "Last Scraped: 2019-01-01\n\n"
+    def test_matching_list(self):
+        """Test scenario where listings match the keyword."""
+        self.run_search_keyword('2023-01-01', '2023-12-31', ['test'])
+
+        self.output_text.delete.assert_called_once_with(1.0, "end")
+        self.output_text.insert.assert_called_once_with(
+            "end",
+            "ID: 1\nName: Test Name\nURL: http://test.url\nDate: 2023-01-01 00:00:00\nDescription: test\n\nDisplaying 1 of 1 matching listings."
         )
 
-        self.check_output_text(expected_text)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
-

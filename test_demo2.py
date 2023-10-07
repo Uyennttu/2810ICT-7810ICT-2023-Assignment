@@ -45,8 +45,6 @@ class TestDisplayPrices(unittest.TestCase):
     # 4. Test no data to plot
     @patch('demo2.messagebox.showerror')
     def test_no_data_to_plot(self, mock_showerror):
-        # Your setup seems logical. It depends on how your actual function determines there’s no data to plot.
-        # Ensure that your function would indeed consider this data as "no data to plot".
         mock_listings_df = pd.DataFrame({
             'id': [1, 2, 3],
             'neighbourhood': ['A', 'B', 'C']

@@ -32,7 +32,7 @@ class TestRetrieveCount(unittest.TestCase):
 
         mock_showerror.assert_not_called()
         mock_showinfo.assert_called_once()
-        mock_count_label.config.assert_called_once_with(text="Count of listings mentioning cleanliness: 2")
+        mock_count_label.config.assert_called_once_with(text="Count of listings: 2")
 
 
 if __name__ == '__main__':

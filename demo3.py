@@ -8,9 +8,19 @@ from datetime import datetime
 def load_data():
     global listings_dataset, calendar_dataset
     try:
-        listings_dataset = pd.read_csv('listings_dec18.csv', low_memory=False)
-        calendar_dataset = pd.read_csv('calendar_dec18.csv')
+        # Load only necessary columns
+        cols_listings = ['id', 'description']
+        cols_calendar = ['listing_id', 'date']
+
+        listings_dataset = pd.read_csv('listings_dec18.csv', usecols=cols_listings, low_memory=False)
+        calendar_dataset = pd.read_csv('calendar_dec18.csv', usecols=cols_calendar)
+
+        # Convert date column to datetime and handle errors
         calendar_dataset['date'] = pd.to_datetime(calendar_dataset['date'], errors='coerce')
+
+        # Ensure that merging columns have the same data type
+        listings_dataset['id'] = listings_dataset['id'].astype(str)
+        calendar_dataset['listing_id'] = calendar_dataset['listing_id'].astype(str)
     except Exception as e:
         print(f"Error loading data: {e}")
 
@@ -21,6 +31,8 @@ def update_output_text(text):
 
 
 def search_keyword(start_date, end_date, keywords, output_text):
+    if start_date is None or end_date is None or keywords is None:
+        raise ValueError("Input values cannot be None")
     global calendar_dataset
     try:
         start_date = datetime.strptime(start_date, '%Y-%m-%d')

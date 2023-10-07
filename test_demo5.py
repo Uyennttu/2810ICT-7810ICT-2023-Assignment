@@ -9,7 +9,6 @@ def count_apartments(dataset, num_bedrooms, suburb):
     if 'property_type' not in dataset.columns or 'bedrooms' not in dataset.columns or 'neighbourhood' not in dataset.columns:
         raise ValueError("'property_type', 'bedrooms', or 'neighbourhood' column not found in the dataset.")
 
-    # Ensure that the arguments are of the expected type
     if not isinstance(num_bedrooms, int) or not isinstance(suburb, str):
         raise TypeError("Invalid input: num_bedrooms must be an integer, and suburb must be a string.")
 

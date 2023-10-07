@@ -13,6 +13,16 @@ def load_data():
 
 
 def display_prices(start_date, end_date, frame, top_n, listings_df, calendar_df):
+    # Validate DataFrame inputs
+    if listings_df is None or calendar_df is None:
+        raise ValueError("DataFrames cannot be None.")
+
+    # Convert date strings to datetime objects if necessary
+    if isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    if isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
     listings_subset = listings_df[['id', 'neighbourhood']]
     calendar_subset = calendar_df[
         (calendar_df['date'] >= start_date) & (calendar_df['date'] <= end_date)
@@ -53,7 +63,7 @@ def on_submit():
 listings, calendar = load_data()
 
 root = tk.Tk()
-root.title('Price Visualization')
+root.title('Airbnb Data Analysis')
 
 frame = ttk.Frame(root, padding='5 5 5 5')
 frame.grid(column=0, row=0, sticky=(tk.W, tk.E, tk.N, tk.S))

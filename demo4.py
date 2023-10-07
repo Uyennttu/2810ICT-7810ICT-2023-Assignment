@@ -9,23 +9,6 @@ except FileNotFoundError:
     messagebox.showerror("File Error", "listings_dec18.csv not found in the current directory.")
     dataset = pd.DataFrame()
 
-app = tk.Tk()
-app.title("Airbnb Data Analysis")
-
-notebook = ttk.Notebook(app)
-notebook.pack(padx=10, pady=10)
-
-frame4 = ttk.Frame(notebook)
-notebook.add(frame4, text="Retrieve Count")
-
-search_fields_label = ttk.Label(frame4, text="Search Fields (comma-separated):")
-search_fields_label.grid(row=0, column=0, padx=5, pady=5)
-search_fields_entry = ttk.Entry(frame4)
-search_fields_entry.grid(row=0, column=1, padx=5, pady=5)
-
-count_label = ttk.Label(frame4, text="Count of listings mentioning cleanliness: 0")
-count_label.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
-
 
 def retrieve_count(search_fields):
     if dataset.empty:
@@ -44,8 +27,26 @@ def retrieve_count(search_fields):
             if any(keyword in comment.lower() for keyword in cleanliness_keywords):
                 count += 1
 
-    count_label.config(text=f"Count of listings mentioning cleanliness: {count}")
-    messagebox.showinfo("Result", f"Count of listings mentioning cleanliness: {count}")
+    count_label.config(text=f"Count of listings: {count}")
+    messagebox.showinfo("Result", f"Count of listings: {count}")
+
+
+app = tk.Tk()
+app.title("Airbnb Data Analysis")
+
+notebook = ttk.Notebook(app)
+notebook.pack(padx=10, pady=10)
+
+frame4 = ttk.Frame(notebook)
+notebook.add(frame4, text="Retrieve Count")
+
+search_fields_label = ttk.Label(frame4, text="Search Fields (comma-separated):")
+search_fields_label.grid(row=0, column=0, padx=5, pady=5)
+search_fields_entry = ttk.Entry(frame4)
+search_fields_entry.grid(row=0, column=1, padx=5, pady=5)
+
+count_label = ttk.Label(frame4, text="Count of listings: 0")
+count_label.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
 
 
 retrieve_count_button = ttk.Button(frame4, text="Retrieve Count",
